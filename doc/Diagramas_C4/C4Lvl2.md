@@ -27,7 +27,7 @@ System_Boundary(app, "Con!Vive") {
     ' Server Odoo
     Container(serverOdoo, "Servicio de Odoo", "Odoo", "Servidor donde se gestionaran todos los usuarios y suscripciones")
 
-    ContainerDb( AppDB, "DB de la app", "MongoDB", "Almacena toda la info de la app")
+    ContainerDb( AppDB, "DB de la app", "Mysql", "Almacena toda la info de la app")
 
     ContainerDb( odooDB, "DB del servidor Odoo", "PostgresSql", "Almacena toda la información del servidor Odoo")
     }
