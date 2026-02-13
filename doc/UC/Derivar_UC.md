@@ -21,7 +21,7 @@
 
 4 UC4 – Iniciar sessión
 
-* Autenticar con odoo i verificar la su inicio de sesión.
+* Autenticar con odoo y verificar la su inicio de sesión.
 
 
 5 UC5 – Publicar
