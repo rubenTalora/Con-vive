@@ -13,9 +13,10 @@
     'depends': ['base'],
     'data': [
         'security/ir.model.access.csv',
+        'views/jwt_token_views.xml',
     ],
     'installable': True,
-    'application': False,
+    'application': True,
     'auto_install': False,
     'license': 'LGPL-3',
 }
