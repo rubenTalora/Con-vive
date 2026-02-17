@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
-# JWT Authentication Models
+# Convive JWT Authentication Models
 
 from . import jwt_token
+from . import convive_jwt_models

@@ -1,0 +1,6 @@
+# Git ignore for Odoo Python caches
+# Ignore Python bytecode and cache directories
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyc
