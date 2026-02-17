@@ -2,18 +2,30 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0
-    container_name: buscar_piso_mysql
+    image: mysql:8
+    container_name: convive_mysql
     restart: always
     environment:
-      MYSQL_DATABASE: buscar_piso_db
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: piso_user
-      MYSQL_PASSWORD: 1234
+      MYSQL_DATABASE: convivedb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: convive_app
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/convivedb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: apppass
 
 volumes:
   mysql_data:
