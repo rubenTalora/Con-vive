@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import DashboardLayout from '@/layouts/DashboardLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,13 +13,38 @@ const router = createRouter({
     },
     {
       path: '/',
-      name: 'home',
-      component: () => import('@/views/HomeView.vue'),
-      meta: { requiresAuth: true }
+      component: DashboardLayout,
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: '',
+          redirect: '/pisos'
+        },
+        {
+          path: 'pisos',
+          name: 'pisos',
+          component: () => import('@/views/PisosView.vue')
+        },
+        {
+          path: 'companeros',
+          name: 'companeros',
+          component: () => import('@/views/CompanerosView.vue')
+        },
+        {
+          path: 'chats',
+          name: 'chats',
+          component: () => import('@/views/ChatsView.vue')
+        },
+        {
+          path: 'menu',
+          name: 'menu',
+          component: () => import('@/views/MenuView.vue')
+        }
+      ]
     },
     {
       path: '/:pathMatch(.*)*',
-      redirect: '/'
+      redirect: '/pisos'
     }
   ]
 })
@@ -30,7 +56,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login' })
   } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next({ name: 'home' })
+    next({ name: 'pisos' })
   } else {
     next()
   }

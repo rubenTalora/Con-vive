@@ -79,7 +79,8 @@ const formData = reactive({
 const handleLogin = async () => {
   try {
     await authStore.login(formData.email, formData.password)
-    router.push({ name: 'home' })
+    // Redirigir a pisos después del login exitoso
+    await router.push({ name: 'pisos' })
   } catch (error) {
     console.error('Error en login:', error)
   }
