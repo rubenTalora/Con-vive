@@ -1,18 +1,32 @@
--- Active: 1758530917467@@127.0.0.1@3306
-
+-- Forzamos el uso de UTF8 para que la ñ no sea un problema
+SET NAMES utf8mb4;
 USE convive_db;
 
-INSERT INTO chat_message (chat_id, sender, receiver, message, timestamp) VALUES
-(1, 'juan123', 'maria89', 'Hola, ¿sigue disponible el piso?'),
-(1, 'maria89', 'juan123', 'Sí, todavía está disponible.'),
-(2, 'carlos_dev', 'ana_student', 'Hola, busco compañero para compartir piso.'),
-(2, 'ana_student', 'carlos_dev', 'Perfecto, me interesa. ¿Dónde está ubicado?');
+-- Limpiamos tablas para evitar errores de duplicados (Duplicate entry)
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE chat_mensaje;
+TRUNCATE TABLE publication;
+TRUNCATE TABLE profile;
+SET FOREIGN_KEY_CHECKS = 1;
 
-USE convive_db;
+-- 1. PUBLICACIONES 
+INSERT INTO publication (title, description, type, price, city, `baños`, habitaciones, metros)
+VALUES 
+('Piso céntrico luminoso', 'Piso de 3 habitaciones cerca de la universidad', 'ALQUILER', 750, 'Valencia', 2, 3, 90),
+('Habitación en piso compartido', 'Habitación amplia con escritorio', 'COMPARTIDO', 350, 'Madrid', 1, 1, 15),
+('Estudio moderno', 'Estudio reformado ideal para estudiante', 'ALQUILER', 600, 'Barcelona', 1, 1, 40);
 
-INSERT INTO publication (title, description, type, price, city, owner_username) VALUES
-('Piso luminoso en el centro', 'Piso de 3 habitaciones completamente amueblado, ideal para estudiantes.', 'ALQUILER', 850.00, 'Madrid', 'juan123'),
-('Ático con terraza', 'Ático moderno con terraza privada y vistas increíbles.', 'VENTA', 320000.00, 'Barcelona', 'maria89'),
-('Habitación en piso compartido', 'Buscamos compañero/a de piso responsable y limpio.', 'COMPAÑERO', 400.00, 'Valencia', 'carlos_dev'),
-('Apartamento cerca de la playa', 'Apartamento de 2 habitaciones a 5 minutos andando del mar.', 'VENTA', 210000.00, 'Málaga', 'laura_fit'),
-('Piso para estudiantes', 'Zona universitaria, totalmente equipado.', 'ALQUILER', 700.00, 'Sevilla', 'ana_student');
+-- 2. CHATS
+INSERT INTO chat_mensaje (chat_id, message_number, sender, receiver, message, timestamp)
+VALUES
+(1, 1, 'juan123', 'maria89', 'Hola, ¿sigue disponible el piso?', NOW()),
+(1, 2, 'maria89', 'juan123', 'Sí, todavía está disponible.', NOW());
+
+-- 3. PROFILES
+INSERT INTO profile (name, description, city, piso, price, sex, visible, age) VALUES 
+('Alejandro García', 'Estudiante de máster buscando convivencia.', 'Madrid', 1, 450, 'Hombre', 1, 24),
+('Lucía Fernández', 'Trabajadora en sector IT. Ordenada.', 'Barcelona', 0, 600, 'Mujer', 1, 29),
+('Marcos Ruiz', 'Busco habitación cerca del centro.', 'Sevilla', 1, 320, 'Hombre', 1, 22),
+('Elena Martínez', 'Profesora de primaria.', 'Valencia', 1, 380, 'Mujer', 1, 31),
+('Carlos Peña', 'Nómada digital. Busco silencio.', 'Málaga', 0, 500, 'Hombre', 0, 35),
+('Sofía Castro', 'Estudiante de Bellas Artes.', 'Granada', 1, 275, 'Mujer', 1, 20);

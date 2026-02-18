@@ -9,19 +9,18 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Publication {
+public class Profile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String title;
+    private String name;
     private String description;
-    private String type; // ALQUILER o VENTA o COMPAÑEROS
-    private Double price;
     private String city;
-    private String ownerUsername;
-    private int metros;
-    private int habitaciones;
-    private int baños;
+    private Boolean piso;
+    private int price;
+    private String sex;
+    private Boolean visible; // Para si el perfil es visible o no
+    private int age;
+
 }

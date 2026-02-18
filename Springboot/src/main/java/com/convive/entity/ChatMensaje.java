@@ -6,17 +6,18 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
+@IdClass(ChatMensajeId.class) 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatMessage {
+public class ChatMensaje {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long chatId; //ID del chat
+    @Id
+    private Long messageNumber; // Numero de mensaje dentro del chat
 
-    private Long chatId;
     private String sender;
     private String receiver;
     private String message;
