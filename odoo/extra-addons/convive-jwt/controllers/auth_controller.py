@@ -75,6 +75,7 @@ class ConviveAuthController(http.Controller):
         password = data.get('password')
         name = data.get('name')
         email = data.get('email')
+        birth_date = data.get('birth_date')
 
         if not login or not password or not name:
             return json_response(
@@ -82,7 +83,7 @@ class ConviveAuthController(http.Controller):
                     "error": "Campos requeridos faltantes (name, login, password)"
                 }, status=400)
         
-        result = AuthService.register_user(name, login, password, email)
+        result = AuthService.register_user(name, login, password, email, birth_date)
 
         if not result["ok"]:
             return json_response({
@@ -90,3 +91,31 @@ class ConviveAuthController(http.Controller):
             }, status=400)
 
         return json_response(result["data"], status=201)
+    
+    @http.route(Endpoints.AUTH_LOGOUT, type='http', auth='none', csrf=False, cors='*', methods=['POST'])
+    def logout(self, **kw):
+        """Cierra sesión de un usuario de ConVive revocando su refresh token"""
+        
+        data = get_json_body()
+        if not data:
+            return json_response({
+                "error": "JSON inválido o cuerpo vacío"
+            }, status=400)
+        
+        refresh_token = data.get('refresh_token')
+        
+        if not refresh_token:
+            return json_response({
+                "error": "refresh_token requerido"
+            }, status=400)
+        
+        result = AuthService.logout(refresh_token)
+        
+        if not result["ok"]:
+            return json_response({
+                "error": result["error"]
+            }, status=400)
+        
+        return json_response({
+            "message": result["message"]
+        }, status=200)

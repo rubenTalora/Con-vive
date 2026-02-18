@@ -31,9 +31,13 @@ class AuthService:
         user = request.env["res.users"].sudo().browse(uid)
         
         # Determinar rol del usuario en ConVive
-        role = "admin" if user.has_group("base.group_system") else "user"
+        # Es admin si tiene el grupo system O si es administrador de ConVive
+        is_system_admin = user.has_group("base.group_system")
+        is_convive_admin = bool(user.is_convive_admin) if hasattr(user, 'is_convive_admin') else False
+        role = "admin" if (is_system_admin or is_convive_admin) else "user"
         
         logger.info(f"Usuario {login} (ID: {uid}) autenticado exitosamente en ConVive con rol: {role}")
+        logger.info(f"Is system admin: {is_system_admin}, Is ConVive admin: {is_convive_admin}")
         logger.info(f"Grupos del usuario: {[g.name for g in user.groups_id]}")
         
         # Crear refresh token
@@ -84,7 +88,10 @@ class AuthService:
             logger.warning(f"Usuario {user_id} no encontrado para refresh token válido.")
             return None
         
-        role = "admin" if user.has_group("base.group_system") else "user"
+        # Determinar rol actual desde la base de datos
+        is_system_admin = user.has_group("base.group_system")
+        is_convive_admin = bool(user.is_convive_admin) if hasattr(user, 'is_convive_admin') else False
+        role = "admin" if (is_system_admin or is_convive_admin) else "user"
 
         new_access_token = JWTService.create_token(
             payload={
@@ -131,7 +138,10 @@ class AuthService:
             if not user.exists():
                 return None
             
-            current_role = "admin" if user.has_group("base.group_system") else "user"
+            # Determinar rol actual desde la base de datos
+            is_system_admin = user.has_group("base.group_system")
+            is_convive_admin = bool(user.is_convive_admin) if hasattr(user, 'is_convive_admin') else False
+            current_role = "admin" if (is_system_admin or is_convive_admin) else "user"
             
             # Almacenar el rol en el request para uso posterior
             request.user_role = current_role
@@ -150,7 +160,10 @@ class AuthService:
         if not user:
             return None
         
-        role = "admin" if user.has_group("base.group_system") else "user"
+        # Determinar rol actual desde la base de datos
+        is_system_admin = user.has_group("base.group_system")
+        is_convive_admin = bool(user.is_convive_admin) if hasattr(user, 'is_convive_admin') else False
+        role = "admin" if (is_system_admin or is_convive_admin) else "user"
         
         return {
             "id": user.id,
@@ -159,10 +172,11 @@ class AuthService:
             "email": user.partner_id.email if user.partner_id and user.partner_id.email else user.login,
             "role": role,
             "partner_id": user.partner_id.id if user.partner_id else None,
+            "birth_date": user.birth_date.isoformat() if user.birth_date else None,
         }
         
     @staticmethod
-    def register_user(name, login, password, email=None):
+    def register_user(name, login, password, email=None, birth_date=None):
         """Crea un usuario en Odoo para la aplicación ConVive y devuelve tokens JWT."""
 
         existing_user = request.env['res.users'].sudo().search([('login', '=', login)], limit=1)
@@ -187,6 +201,10 @@ class AuthService:
                 'company_ids': [(6, 0, [company.id])],
                 'groups_id': [(6, 0, [portal_group_id])]
             }
+            
+            # Agregar fecha de nacimiento si se proporciona
+            if birth_date:
+                user_vals['birth_date'] = birth_date
 
             new_user = env_as_superuser['res.users'].create(user_vals)
             
@@ -231,3 +249,33 @@ class AuthService:
         }
 
         return {"ok": True, "data": token_data}
+    
+    @staticmethod
+    def logout(refresh_token):
+        """Revoca un refresh token para cerrar sesión del usuario de ConVive."""
+        if not refresh_token:
+            logger.warning("Intento de logout sin refresh token")
+            return {"ok": False, "error": "refresh_token requerido"}
+        
+        # Validar y revocar el token
+        try:
+            # Primero validar que el token sea válido antes de revocarlo
+            payload = JWTService.decode_token(refresh_token)
+            if not payload or payload.get('type') != TOKEN_TYPE_REFRESH:
+                logger.warning("Intento de revocar un token inválido o que no es refresh token")
+                return {"ok": False, "error": "Token inválido"}
+            
+            # Revocar el token
+            success = JWTService.revoke_refresh_token(refresh_token)
+            
+            if success:
+                user_id = payload.get('sub')
+                logger.info(f"Logout exitoso para usuario ID: {user_id}")
+                return {"ok": True, "message": "Sesión cerrada exitosamente"}
+            else:
+                logger.warning("No se pudo revocar el refresh token")
+                return {"ok": False, "error": "No se pudo cerrar la sesión"}
+                
+        except Exception as e:
+            logger.error(f"Error al cerrar sesión: {e}")
+            return {"ok": False, "error": "Error al procesar el cierre de sesión"}

@@ -18,8 +18,9 @@ class Endpoints(StrEnum):
     """Rutas de endpoints para la API de Convive"""
     AUTH_TOKEN = '/api/convive/auth/token'
     AUTH_REGISTER = '/api/convive/auth/register'
-    USER_ME = '/api/convive/users/me'
     AUTH_REFRESH = '/api/convive/auth/refresh'
+    AUTH_LOGOUT = '/api/convive/auth/logout'
+    USER_ME = '/api/convive/users/me'
 
     @property
     def path(self):

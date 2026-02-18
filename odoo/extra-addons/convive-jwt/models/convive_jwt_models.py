@@ -40,32 +40,3 @@ class ConviveRefreshToken(models.Model):
         count = len(expired_tokens)
         expired_tokens.unlink()
         return count
-
-
-class JWTToken(models.Model):
-    """Modelo auxiliar para gestión de tokens JWT en ConVive"""
-    _name = 'convive.jwt.token'
-    _description = 'JWT Token Management'
-    _order = 'create_date desc'
-
-    name = fields.Char(string='Nombre del Token', required=True)
-    user_id = fields.Many2one('res.users', string='Usuario', required=True, default=lambda self: self.env.user)
-    token = fields.Text(string='Token', readonly=True, help='Token JWT generado')
-    expiration_date = fields.Datetime(string='Fecha de Expiración')
-    active = fields.Boolean(string='Activo', default=True)
-    description = fields.Text(string='Descripción')
-    token_type = fields.Selection([
-        ('access', 'Access Token'),
-        ('refresh', 'Refresh Token'),
-    ], string='Tipo de Token', default='access')
-    
-    @api.model
-    def generate_token(self):
-        """Método placeholder para generación de tokens - implementar según necesidades"""
-        # La generación real se hace a través de JWTService
-        pass
-    
-    def revoke_token(self):
-        """Revocar token JWT"""
-        self.write({'active': False})
-        return True

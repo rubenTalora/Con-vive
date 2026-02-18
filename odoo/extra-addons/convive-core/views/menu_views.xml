@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menú principal de ConVive -->
+    <menuitem id="menu_convive_root"
+              name="ConVive"
+              sequence="5"
+              web_icon="convive-core,static/description/icon.png"/>
+
+    <!-- Menú de Usuarios -->
+    <menuitem id="menu_convive_users"
+              name="Usuarios"
+              parent="menu_convive_root"
+              sequence="10"/>
+
+    <menuitem id="menu_convive_users_list"
+              name="Todos los Usuarios"
+              parent="menu_convive_users"
+              action="convive-core.action_res_users_convive"
+              sequence="10"/>
+
+    <!-- Menú de Suscripciones -->
+    <menuitem id="menu_convive_subscriptions"
+              name="Suscripciones"
+              parent="menu_convive_root"
+              sequence="20"/>
+
+    <menuitem id="menu_convive_subscription_plans"
+              name="Planes de Suscripción"
+              parent="menu_convive_subscriptions"
+              action="action_convive_subscription"
+              sequence="10"/>
+
+    <!-- Menú de Administración -->
+    <menuitem id="menu_convive_admin"
+              name="Administración"
+              parent="menu_convive_root"
+              sequence="30"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_convive_admins_list"
+              name="Administradores"
+              parent="menu_convive_admin"
+              action="action_convive_admin"
+              sequence="10"/>
+
+</odoo>

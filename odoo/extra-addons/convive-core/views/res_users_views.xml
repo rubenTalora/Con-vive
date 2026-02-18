@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de formulario simplificada para ConVive -->
+    <record id="view_res_users_form_convive_simplified" model="ir.ui.view">
+        <field name="name">res.users.form.convive.simplified</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <form string="Usuario ConVive">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_subscriptions" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-calendar-check-o"
+                                invisible="not has_active_subscription">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="active_subscription_id" readonly="1"/>
+                                </span>
+                                <span class="o_stat_text">Suscripción</span>
+                            </div>
+                        </button>
+                        <button name="action_view_subscriptions" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-list">
+                            <field name="convive_subscription_ids" widget="statinfo" string="Historial"/>
+                        </button>
+                    </div>
+                    
+                    <field name="image_1920" widget="image" class="oe_avatar"/>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre completo del usuario" required="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Información de Acceso">
+                            <field name="login" placeholder="email@ejemplo.com" required="1" string="Email"/>
+                            <field name="password" password="True" placeholder="Contraseña (dejar vacío para no cambiar)"/>
+                            <field name="active" widget="boolean_toggle" default="1"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                        <group string="Información Personal">
+                            <field name="birth_date" placeholder="Fecha de nacimiento"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Suscripción ConVive" name="convive_subscription">
+                            <group>
+                                <group string="Estado Actual de Suscripción (Solo Lectura)">
+                                    <field name="has_active_subscription" readonly="1" widget="boolean_toggle"/>
+                                    <field name="active_subscription_id" readonly="1"/>
+                                    <field name="subscription_expiry_date" readonly="1" 
+                                           invisible="not has_active_subscription"/>
+                                    <label for="days_until_expiry" invisible="not has_active_subscription"/>
+                                    <div invisible="not has_active_subscription">
+                                        <field name="days_until_expiry" class="oe_inline"/> días restantes
+                                    </div>
+                                </group>
+                                <group string="➕ Asignar Nueva Suscripción">
+                                    <field name="new_subscription_id" 
+                                           placeholder="1. Selecciona un plan aquí"
+                                           domain="[('active', '=', True)]"
+                                           options="{'no_create': True}"/>
+                                    <div colspan="2" class="alert alert-info" role="alert" style="margin-top: 10px;">
+                                        <strong>Instrucciones:</strong><br/>
+                                        1. Selecciona un plan de suscripción arriba<br/>
+                                        2. Haz clic en "Guardar" (botón superior)<br/>
+                                        3. El historial se actualizará automáticamente
+                                    </div>
+                                </group>
+                            </group>
+                            <separator string="Historial de Suscripciones"/>
+                            <field name="convive_subscription_ids" nolabel="1" readonly="1">
+                                <tree decoration-success="is_active" decoration-muted="not is_active" editable="bottom">
+                                    <field name="subscription_id"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                    <field name="duration_days" string="Duración (días)"/>
+                                    <field name="is_active" widget="boolean_toggle"/>
+                                    <field name="notes"/>
+                                </tree>
+                            </field>
+                        </page>
+                        
+                        <page string="Administración" name="convive_admin">
+                            <group>
+                                <group string="Estado de Administrador">
+                                    <field name="is_convive_admin" readonly="1" widget="boolean_toggle"/>
+                                    <field name="convive_admin_id" invisible="1"/>
+                                </group>
+                                <group string="Grupos y Permisos" groups="base.group_system">
+                                    <field name="groups_id" widget="many2many_tags"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Preferencias" name="preferences" groups="base.group_no_one">
+                            <group>
+                                <group string="Localización">
+                                    <field name="tz"/>
+                                    <field name="tz_offset" invisible="1"/>
+                                </group>
+                                <group string="Configuración">
+                                    <field name="company_id" groups="base.group_multi_company"/>
+                                    <field name="signature" widget="html"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista heredada de usuarios para añadir campos de ConVive (alternativa heredada) -->
+    <record id="view_res_users_form_convive" model="ir.ui.view">
+        <field name="name">res.users.form.convive</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <!-- Añadir botones estadísticos -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_subscriptions" 
+                        type="object" 
+                        class="oe_stat_button" 
+                        icon="fa-calendar-check-o"
+                        invisible="not has_active_subscription">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="active_subscription_id" readonly="1"/>
+                        </span>
+                        <span class="o_stat_text">Suscripción</span>
+                    </div>
+                </button>
+                <button name="action_view_subscriptions" 
+                        type="object" 
+                        class="oe_stat_button" 
+                        icon="fa-list"
+                        groups="base.group_system">
+                    <field name="convive_subscription_ids" widget="statinfo" string="Historial"/>
+                </button>
+            </xpath>
+
+            <!-- Añadir página de ConVive en el notebook -->
+            <xpath expr="//notebook" position="inside">
+                <page string="ConVive" name="convive_info">
+                    <group>
+                        <group string="Suscripción Actual">
+                            <field name="has_active_subscription" readonly="1"/>
+                            <field name="active_subscription_id" readonly="1"/>
+                            <field name="subscription_expiry_date" readonly="1" 
+                                   invisible="not has_active_subscription"/>
+                            <field name="new_subscription_id" 
+                                   placeholder="Seleccionar plan..."
+                                   domain="[('active', '=', True)]"
+                                   groups="base.group_system"/>
+                        </group>
+                        <group string="Información de Administrador">
+                            <field name="is_convive_admin" readonly="1"/>
+                            <field name="convive_admin_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Historial de Suscripciones" groups="base.group_system">
+                        <field name="convive_subscription_ids" nolabel="1" readonly="1">
+                            <tree decoration-success="is_active" decoration-muted="not is_active">
+                                <field name="subscription_id"/>
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                                <field name="is_active" widget="boolean_toggle"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista de árbol completa para usuarios ConVive -->
+    <record id="view_res_users_tree_convive_complete" model="ir.ui.view">
+        <field name="name">res.users.tree.convive.complete</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <tree string="Usuarios ConVive">
+                <field name="name" string="Nombre"/>
+                <field name="login" string="Email/Login"/>
+                <field name="birth_date" string="Fecha de Nacimiento"/>
+                <field name="subscription_display" string="Plan Activo"/>
+                <field name="subscription_expiry_date" string="Fecha de Vencimiento"/>
+                <field name="days_until_expiry" string="Días Restantes"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista de árbol heredada para usuarios (heredar vista base de Odoo) -->
+    <record id="view_res_users_tree_convive" model="ir.ui.view">
+        <field name="name">res.users.tree.convive</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree"/>
+        <field name="arch" type="xml">
+            <!-- Eliminar columnas innecesarias -->
+            <xpath expr="//field[@name='lang']" position="replace"/>
+            <xpath expr="//field[@name='login_date']" position="replace"/>
+            <xpath expr="//field[@name='state']" position="replace"/>
+            
+            <!-- Agregar campos ConVive -->
+            <xpath expr="//field[@name='login']" position="after">
+                <field name="birth_date" optional="show"/>
+                <field name="password_visible" string="Contraseña" optional="hide"/>
+                <field name="active_subscription_id" optional="show"/>
+                <field name="subscription_expiry_date" optional="show"/>
+                <field name="is_convive_admin" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Filtros de búsqueda para usuarios ConVive -->
+    <record id="view_res_users_search_convive" model="ir.ui.view">
+        <field name="name">res.users.search.convive</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Con Suscripción Activa" name="has_subscription" domain="[('has_active_subscription', '=', True)]"/>
+                <filter string="Sin Suscripción" name="no_subscription" domain="[('has_active_subscription', '=', False)]"/>
+                <filter string="Administradores ConVive" name="convive_admins" domain="[('is_convive_admin', '=', True)]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter string="Plan de Suscripción" name="group_subscription" context="{'group_by': 'active_subscription_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Acción personalizada para usuarios ConVive -->
+    <record id="action_res_users_convive" model="ir.actions.act_window">
+        <field name="name">Usuarios ConVive</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_res_users_tree_convive_complete"/>
+        <field name="search_view_id" ref="view_res_users_search_convive"/>
+        <field name="context">{'form_view_ref': 'convive-core.view_res_users_form_convive_simplified'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear un nuevo usuario
+            </p>
+            <p>
+                Registra usuarios en ConVive y gestiona sus suscripciones.
+            </p>
+        </field>
+    </record>
+
+</odoo>
