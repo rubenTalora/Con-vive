@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_convive_subscription_user,convive.subscription.user,model_convive_subscription,base.group_user,1,1,1,1
+access_convive_subscription_public,convive.subscription.public,model_convive_subscription,base.group_public,1,0,0,0
+access_convive_user_subscription_user,convive.user.subscription.user,model_convive_user_subscription,base.group_user,1,1,1,1
+access_convive_user_subscription_public,convive.user.subscription.public,model_convive_user_subscription,base.group_public,1,0,0,0
+access_convive_admin_system,convive.admin.system,model_convive_admin,base.group_system,1,1,1,1
+access_convive_admin_user,convive.admin.user,model_convive_admin,base.group_user,1,0,0,0
+access_res_users_convive,res.users.convive,base.model_res_users,base.group_user,1,1,1,0

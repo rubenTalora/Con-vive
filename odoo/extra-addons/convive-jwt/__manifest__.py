@@ -22,10 +22,9 @@
     'external_dependencies': {'python': ['PyJWT']},
     'data': [
         'security/ir.model.access.csv',
-        'views/jwt_token_views.xml',
     ],
     'installable': True,
-    'application': True,
+    'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
 }

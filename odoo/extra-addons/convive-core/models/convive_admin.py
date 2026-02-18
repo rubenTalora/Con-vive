@@ -1,0 +1,109 @@
+# -*- coding: utf-8 -*-
+
+from odoo import models, fields, api, exceptions
+
+
+class ConviveAdmin(models.Model):
+    """Modelo para gestionar administradores de ConVive"""
+    _name = 'convive.admin'
+    _description = 'Administrador ConVive'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _order = 'create_date desc'
+
+    user_id = fields.Many2one('res.users', string='Usuario', required=True, ondelete='cascade', index=True)
+    name = fields.Char(string='Nombre', related='user_id.name', readonly=True, store=True)
+    email = fields.Char(string='Email', related='user_id.login', readonly=True, store=True)
+    
+    admin_level = fields.Selection([
+        ('moderator', 'Moderador'),
+        ('admin', 'Administrador'),
+        ('super_admin', 'Super Administrador')
+    ], string='Nivel de Administración', required=True, default='moderator', help='Nivel de permisos del administrador', tracking=True)
+    
+    active = fields.Boolean(string='Activo', default=True, help='Si está inactivo, pierde privilegios de administrador', tracking=True)
+    assigned_date = fields.Date(string='Fecha de Asignación', default=fields.Date.today, readonly=True)
+    assigned_by = fields.Many2one('res.users', string='Asignado por', default=lambda self: self.env.user, readonly=True)
+    notes = fields.Text(string='Notas')
+    
+    # Permisos específicos
+    can_manage_users = fields.Boolean(string='Puede Gestionar Usuarios', default=True)
+    can_manage_subscriptions = fields.Boolean(string='Puede Gestionar Suscripciones', default=True)
+    can_manage_content = fields.Boolean(string='Puede Gestionar Contenido', default=True)
+    can_manage_admins = fields.Boolean(string='Puede Gestionar Administradores', default=False, help='Solo super admins deberían tener este permiso')
+    
+    _sql_constraints = [
+        ('user_unique', 'unique(user_id)', 'Este usuario ya es administrador.'),
+    ]
+    
+    @api.model
+    def create(self, vals):
+        """Al crear un admin, asignar grupos de Odoo correspondientes"""
+        admin = super(ConviveAdmin, self).create(vals)
+        admin._grant_admin_groups()
+        return admin
+    
+    def write(self, vals):
+        """Al modificar, actualizar grupos si cambia el estado activo o nivel"""
+        res = super(ConviveAdmin, self).write(vals)
+        if 'active' in vals or 'admin_level' in vals:
+            for admin in self:
+                if admin.active:
+                    admin._grant_admin_groups()
+                else:
+                    admin._revoke_admin_groups()
+        return res
+    
+    def unlink(self):
+        """Al eliminar, revocar permisos de administrador"""
+        for admin in self:
+            admin._revoke_admin_groups()
+        return super(ConviveAdmin, self).unlink()
+    
+    def _grant_admin_groups(self):
+        """Otorga grupos de Odoo según el nivel de administrador"""
+        self.ensure_one()
+        internal_user_group = self.env.ref('base.group_user')
+        portal_group = self.env.ref('base.group_portal')
+        
+        # Remover de portal y agregar a usuarios internos
+        self.user_id.write({
+            'groups_id': [
+                (3, portal_group.id),  # Remove portal
+                (4, internal_user_group.id),  # Add internal user
+            ]
+        })
+        
+        # Si es super admin, agregar grupo de sistema
+        if self.admin_level == 'super_admin':
+            system_group = self.env.ref('base.group_system')
+            self.user_id.write({
+                'groups_id': [(4, system_group.id)]
+            })
+    
+    def _revoke_admin_groups(self):
+        """Revoca grupos administrativos de Odoo"""
+        self.ensure_one()
+        internal_user_group = self.env.ref('base.group_user')
+        system_group = self.env.ref('base.group_system')
+        portal_group = self.env.ref('base.group_portal')
+        
+        # Volver a usuario portal
+        self.user_id.write({
+            'groups_id': [
+                (3, internal_user_group.id),
+                (3, system_group.id),
+                (4, portal_group.id),
+            ]
+        })
+    
+    def name_get(self):
+        """Formato personalizado para mostrar el administrador"""
+        result = []
+        for record in self:
+            level_dict = dict(self._fields['admin_level'].selection)
+            level = level_dict.get(record.admin_level, '')
+            name = f"{record.name} ({level})"
+            if not record.active:
+                name += " [Inactivo]"
+            result.append((record.id, name))
+        return result

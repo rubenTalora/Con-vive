@@ -1,6 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_convive_jwt_token_user,access.convive.jwt.token.user,model_convive_jwt_token,base.group_user,1,1,1,1
-access_convive_jwt_token_public,access.convive.jwt.token.public,model_convive_jwt_token,base.group_public,1,0,0,0
-access_convive_jwt_token_legacy_user,access.convive.jwt.token.legacy.user,model_convive_jwt_token_legacy,base.group_user,1,1,1,1
 access_convive_refresh_token_user,access.convive.refresh.token.user,model_convive_refresh_token,base.group_user,1,1,1,1
 access_convive_refresh_token_system,access.convive.refresh.token.system,model_convive_refresh_token,base.group_system,1,1,1,1

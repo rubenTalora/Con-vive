@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de árbol para historial de suscripciones de usuarios -->
+    <record id="view_convive_user_subscription_tree" model="ir.ui.view">
+        <field name="name">convive.user.subscription.tree</field>
+        <field name="model">convive.user.subscription</field>
+        <field name="arch" type="xml">
+            <tree string="Historial de Suscripciones" decoration-success="is_active" decoration-muted="not is_active">
+                <field name="user_id"/>
+                <field name="subscription_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="is_active" widget="boolean_toggle"/>
+                <field name="created_by"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista de formulario para suscripciones de usuarios -->
+    <record id="view_convive_user_subscription_form" model="ir.ui.view">
+        <field name="name">convive.user.subscription.form</field>
+        <field name="model">convive.user.subscription</field>
+        <field name="arch" type="xml">
+            <form string="Suscripción de Usuario">
+                <header>
+                    <field name="is_active" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="subscription_id" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="user_id" readonly="1"/>
+                            <field name="start_date" readonly="1"/>
+                            <field name="end_date" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="is_active" readonly="1"/>
+                            <field name="created_by" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Notas">
+                        <field name="notes" nolabel="1" placeholder="Notas sobre esta suscripción..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista de búsqueda -->
+    <record id="view_convive_user_subscription_search" model="ir.ui.view">
+        <field name="name">convive.user.subscription.search</field>
+        <field name="model">convive.user.subscription</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Suscripciones">
+                <field name="user_id"/>
+                <field name="subscription_id"/>
+                <filter string="Activas" name="active" domain="[('is_active', '=', True)]"/>
+                <filter string="Expiradas" name="expired" domain="[('is_active', '=', False)]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Usuario" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Plan" name="group_plan" context="{'group_by': 'subscription_id'}"/>
+                    <filter string="Fecha de Inicio" name="group_start" context="{'group_by': 'start_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción principal -->
+    <record id="action_convive_user_subscription" model="ir.actions.act_window">
+        <field name="name">Suscripciones de Usuarios</field>
+        <field name="res_model">convive.user.subscription</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay suscripciones registradas
+            </p>
+            <p>
+                Aquí se muestra el historial de todas las suscripciones asignadas a usuarios.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción filtrada por plan de suscripción -->
+    <record id="action_convive_user_subscription_by_plan" model="ir.actions.act_window">
+        <field name="name">Suscriptores del Plan</field>
+        <field name="res_model">convive.user.subscription</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('subscription_id', '=', active_id), ('is_active', '=', True)]</field>
+        <field name="context">{'default_subscription_id': active_id}</field>
+    </record>
+
+</odoo>
