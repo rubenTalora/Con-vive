@@ -37,7 +37,35 @@ class ConviveAdmin(models.Model):
     
     @api.model
     def create(self, vals):
-        """Al crear un admin, asignar grupos de Odoo correspondientes"""
+        """
+        Al crear un admin:
+        - Si ya existe un registro inactivo para el usuario, reactivarlo
+        - Si no existe, crear uno nuevo
+        - Asignar grupos de Odoo correspondientes
+        """
+        user_id = vals.get('user_id')
+        if user_id:
+            # Buscar si existe un admin inactivo para este usuario
+            existing_admin = self.with_context(active_test=False).search([
+                ('user_id', '=', user_id),
+                ('active', '=', False)
+            ], limit=1)
+            
+            if existing_admin:
+                # Reactivar el admin existente y actualizar sus valores
+                existing_admin.write({
+                    'active': True,
+                    'admin_level': vals.get('admin_level', existing_admin.admin_level),
+                    'can_manage_users': vals.get('can_manage_users', existing_admin.can_manage_users),
+                    'can_manage_subscriptions': vals.get('can_manage_subscriptions', existing_admin.can_manage_subscriptions),
+                    'can_manage_content': vals.get('can_manage_content', existing_admin.can_manage_content),
+                    'can_manage_admins': vals.get('can_manage_admins', existing_admin.can_manage_admins),
+                    'notes': vals.get('notes', existing_admin.notes),
+                    'assigned_by': self.env.user.id,
+                })
+                return existing_admin
+        
+        # Si no existe un admin inactivo, crear uno nuevo
         admin = super(ConviveAdmin, self).create(vals)
         admin._grant_admin_groups()
         return admin

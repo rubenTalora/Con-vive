@@ -39,27 +39,39 @@
                     <group>
                         <group string="Información de Acceso">
                             <field name="login" placeholder="email@ejemplo.com" required="1" string="Email"/>
-                            <field name="active" widget="boolean_toggle"/>
+                            <field name="password" password="True" placeholder="Contraseña (dejar vacío para no cambiar)"/>
+                            <field name="active" widget="boolean_toggle" default="1"/>
                             <field name="company_id" invisible="1"/>
                         </group>
-                        <group>
+                        <group string="Información Personal">
+                            <field name="birth_date" placeholder="Fecha de nacimiento"/>
                         </group>
                     </group>
 
                     <notebook>
                         <page string="Suscripción ConVive" name="convive_subscription">
                             <group>
-                                <group string="Suscripción Activa">
+                                <group string="Estado Actual de Suscripción (Solo Lectura)">
                                     <field name="has_active_subscription" readonly="1" widget="boolean_toggle"/>
                                     <field name="active_subscription_id" readonly="1"/>
                                     <field name="subscription_expiry_date" readonly="1" 
                                            invisible="not has_active_subscription"/>
+                                    <label for="days_until_expiry" invisible="not has_active_subscription"/>
+                                    <div invisible="not has_active_subscription">
+                                        <field name="days_until_expiry" class="oe_inline"/> días restantes
+                                    </div>
                                 </group>
-                                <group string="Asignar Suscripción">
+                                <group string="➕ Asignar Nueva Suscripción">
                                     <field name="new_subscription_id" 
-                                           placeholder="Seleccionar plan para asignar..."
+                                           placeholder="1. Selecciona un plan aquí"
                                            domain="[('active', '=', True)]"
                                            options="{'no_create': True}"/>
+                                    <div colspan="2" class="alert alert-info" role="alert" style="margin-top: 10px;">
+                                        <strong>Instrucciones:</strong><br/>
+                                        1. Selecciona un plan de suscripción arriba<br/>
+                                        2. Haz clic en "Guardar" (botón superior)<br/>
+                                        3. El historial se actualizará automáticamente
+                                    </div>
                                 </group>
                             </group>
                             <separator string="Historial de Suscripciones"/>
@@ -176,6 +188,7 @@
             <tree string="Usuarios ConVive">
                 <field name="name" string="Nombre"/>
                 <field name="login" string="Email/Login"/>
+                <field name="birth_date" string="Fecha de Nacimiento"/>
                 <field name="subscription_display" string="Plan Activo"/>
                 <field name="subscription_expiry_date" string="Fecha de Vencimiento"/>
                 <field name="days_until_expiry" string="Días Restantes"/>
@@ -196,6 +209,7 @@
             
             <!-- Agregar campos ConVive -->
             <xpath expr="//field[@name='login']" position="after">
+                <field name="birth_date" optional="show"/>
                 <field name="password_visible" string="Contraseña" optional="hide"/>
                 <field name="active_subscription_id" optional="show"/>
                 <field name="subscription_expiry_date" optional="show"/>

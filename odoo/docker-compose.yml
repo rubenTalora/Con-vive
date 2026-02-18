@@ -22,6 +22,8 @@ services:
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./extra-addons:/mnt/extra-addons
+      - ./odoo.conf:/etc/odoo/odoo.conf
+      - ./keys:/etc/odoo/keys
     restart: always
 
 volumes:

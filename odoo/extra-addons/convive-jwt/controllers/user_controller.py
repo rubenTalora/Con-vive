@@ -32,6 +32,7 @@ class ConviveUserController(http.Controller):
             "email": partner.email if partner and partner.email else user.login,
             "partner_id": partner.id if partner else None,
             "role": getattr(user, 'user_role', 'user'),  # Rol almacenado en el request
+            "birth_date": user.birth_date.isoformat() if user.birth_date else None,
         }
 
         return json_response(user_data, status=200)

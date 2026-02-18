@@ -29,6 +29,10 @@
                             <field name="user_id" placeholder="Seleccionar usuario..." options="{'no_create': True}"/>
                         </h1>
                     </div>
+                    <div class="alert alert-info" role="alert" style="margin-bottom: 10px;">
+                        <strong>ℹ️ Información:</strong> Si el usuario ya fue administrador anteriormente y está inactivo, 
+                        al guardar se reactivará automáticamente su registro anterior.
+                    </div>
                     <group>
                         <group>
                             <field name="name" readonly="1"/>
@@ -95,7 +99,7 @@
         <field name="name">Administradores</field>
         <field name="res_model">convive.admin</field>
         <field name="view_mode">tree,form</field>
-        <field name="context">{'search_default_active': 1}</field>
+        <field name="context">{}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Añadir un administrador
@@ -103,6 +107,10 @@
             <p>
                 Gestiona los administradores de la plataforma ConVive.
                 Los administradores tienen acceso al backend de Odoo.
+            </p>
+            <p>
+                <strong>Nota:</strong> Si intentas crear un administrador para un usuario que ya fue admin anteriormente 
+                (pero está inactivo), se reactivará automáticamente su registro anterior.
             </p>
         </field>
     </record>

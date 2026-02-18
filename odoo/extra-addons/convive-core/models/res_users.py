@@ -7,6 +7,12 @@ class ResUsers(models.Model):
     """Extensión del modelo de usuarios para ConVive"""
     _inherit = 'res.users'
     
+    # Redefinir active con valor por defecto True
+    active = fields.Boolean(default=True)
+    
+    # Información personal
+    birth_date = fields.Date(string='Fecha de Nacimiento', help='Fecha de nacimiento del usuario')
+    
     # Relaciones con suscripciones
     convive_subscription_ids = fields.One2many('convive.user.subscription', 'user_id', string='Historial de Suscripciones')
     active_subscription_id = fields.Many2one('convive.subscription', string='Suscripción Activa', compute='_compute_active_subscription', store=True)
@@ -51,7 +57,21 @@ class ResUsers(models.Model):
         # El login es obligatorio, usar como email si no está presente
         if 'login' in vals and 'email' not in vals:
             vals['email'] = vals['login']
-        return super(ResUsers, self).create(vals)
+        
+        # Si se asigna suscripción en la creación, procesarla después
+        new_subscription_id = vals.pop('new_subscription_id', False)
+        
+        user = super(ResUsers, self).create(vals)
+        
+        # Asignar suscripción si se especificó
+        if new_subscription_id:
+            self.env['convive.user.subscription'].sudo().create({
+                'user_id': user.id,
+                'subscription_id': new_subscription_id,
+                'start_date': fields.Date.today(),
+            })
+        
+        return user
     
     def write(self, vals):
         """
@@ -67,13 +87,13 @@ class ResUsers(models.Model):
         if 'new_subscription_id' in vals and vals.get('new_subscription_id'):
             subscription_id = vals['new_subscription_id']
             for user in self:
-                # Crear nuevo registro de suscripción
-                self.env['convive.user.subscription'].create({
+                # Crear nuevo registro de suscripción con sudo para evitar problemas de permisos
+                self.env['convive.user.subscription'].sudo().create({
                     'user_id': user.id,
                     'subscription_id': subscription_id,
                     'start_date': fields.Date.today(),
                 })
-            # Limpiar el campo temporal
+            # Limpiar el campo temporal para que no se almacene
             vals['new_subscription_id'] = False
         
         return super(ResUsers, self).write(vals)
