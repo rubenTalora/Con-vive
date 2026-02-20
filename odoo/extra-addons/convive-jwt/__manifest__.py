@@ -19,7 +19,7 @@
     'author': 'Convive Team',
     'website': '',
     'depends': ['base'],
-    'external_dependencies': {'python': ['PyJWT', 'cryptography']},
+    'external_dependencies': {'python': ['PyJWT']},
     'data': [
         'security/ir.model.access.csv',
     ],
