@@ -19,7 +19,7 @@
     'author': 'Convive Team',
     'website': '',
     'depends': ['base'],
-    'external_dependencies': {'python': ['PyJWT']},
+    'external_dependencies': {'python': ['PyJWT', 'cryptography']},
     'data': [
         'security/ir.model.access.csv',
     ],
@@ -27,4 +27,5 @@
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
+    'post_init_hook': 'post_init_hook',
 }
