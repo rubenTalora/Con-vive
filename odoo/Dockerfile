@@ -1,8 +1,10 @@
 FROM odoo:17.0
 
-# Install PyJWT for JWT authentication module
 USER root
-RUN pip3 install --no-cache-dir PyJWT==2.8.0
+
+# Install Python dependencies for all custom addons
+COPY extra-addons/convive-jwt/requirements.txt /tmp/convive-jwt-requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/convive-jwt-requirements.txt
 
 USER odoo
 
