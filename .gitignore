@@ -57,8 +57,6 @@ keys/
 
 # Odoo specific
 .odoo_history
-odoo.conf
-.odoo.conf
 
 # Testing / caches
 .pytest_cache/
