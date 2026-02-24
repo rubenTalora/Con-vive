@@ -18,6 +18,9 @@ class ConviveUserSubscription(models.Model):
     is_active = fields.Boolean(string='Activa', compute='_compute_is_active', store=True)
     duration_days = fields.Integer(string='Duración (días)', related='subscription_id.duration_days', readonly=True)
     
+    # Contador de publicaciones usadas en este período de suscripción
+    publications_used = fields.Integer(string='Publicaciones Usadas', default=0, readonly=True)
+
     # Información adicional
     notes = fields.Text(string='Notas')
     created_by = fields.Many2one('res.users', string='Creado por', default=lambda self: self.env.user, readonly=True)

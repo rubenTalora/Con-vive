@@ -68,7 +68,7 @@ class AuthService:
                 "id": uid,
                 "name": user.name,
                 "login": user.login,
-                "role": role
+                "role": role,
             }
         }
     

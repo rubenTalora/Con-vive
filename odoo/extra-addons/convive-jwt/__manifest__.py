@@ -18,7 +18,7 @@
     """,
     'author': 'Convive Team',
     'website': '',
-    'depends': ['base'],
+    'depends': ['base', 'convive-core'],
     'external_dependencies': {'python': ['PyJWT']},
     'data': [
         'security/ir.model.access.csv',
