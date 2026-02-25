@@ -6,6 +6,7 @@ export const useAuthStore = defineStore('auth', () => {
   // State
   const user = ref(null)
   const token = ref(localStorage.getItem('token') || null)
+  const refreshToken = ref(localStorage.getItem('refreshToken') || null)
   const loading = ref(false)
   const error = ref(null)
 
@@ -23,9 +24,11 @@ export const useAuthStore = defineStore('auth', () => {
       
       user.value = response.user
       token.value = response.token
+      refreshToken.value = response.refreshToken
       
-      // Guardar token en localStorage
+      // Guardar en localStorage
       localStorage.setItem('token', response.token)
+      localStorage.setItem('refreshToken', response.refreshToken)
       localStorage.setItem('user', JSON.stringify(response.user))
       
       return response
@@ -37,19 +40,55 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  function logout() {
-    user.value = null
-    token.value = null
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+  async function logout() {
+    try {
+      // Intentar revocar el refresh token en el servidor
+      if (refreshToken.value) {
+        await authService.logout(refreshToken.value)
+      }
+    } catch (err) {
+      console.error('Error al hacer logout:', err)
+    } finally {
+      // Limpiar estado local
+      user.value = null
+      token.value = null
+      refreshToken.value = null
+      localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('user')
+    }
+  }
+
+  async function refresh() {
+    if (!refreshToken.value) {
+      throw new Error('No hay refresh token disponible')
+    }
+
+    try {
+      const response = await authService.refreshToken(refreshToken.value)
+      
+      token.value = response.token
+      refreshToken.value = response.refreshToken
+      
+      localStorage.setItem('token', response.token)
+      localStorage.setItem('refreshToken', response.refreshToken)
+      
+      return response
+    } catch (err) {
+      // Si falla el refresh, hacer logout
+      await logout()
+      throw err
+    }
   }
 
   function initAuth() {
     const savedToken = localStorage.getItem('token')
+    const savedRefreshToken = localStorage.getItem('refreshToken')
     const savedUser = localStorage.getItem('user')
     
-    if (savedToken && savedUser) {
+    if (savedToken && savedRefreshToken && savedUser) {
       token.value = savedToken
+      refreshToken.value = savedRefreshToken
       user.value = JSON.parse(savedUser)
     }
   }
@@ -57,12 +96,14 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user,
     token,
+    refreshToken,
     loading,
     error,
     isAuthenticated,
     currentUser,
     login,
     logout,
+    refresh,
     initAuth
   }
 })

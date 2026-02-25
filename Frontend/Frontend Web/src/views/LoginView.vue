@@ -31,6 +31,10 @@
           />
         </div>
 
+        <div v-if="successMessage" class="success-message">
+          {{ successMessage }}
+        </div>
+
         <div v-if="authStore.error" class="error-message">
           {{ authStore.error }}
         </div>
@@ -44,31 +48,23 @@
         </button>
       </form>
 
-      <div class="mock-credentials">
-        <p class="mock-title">🔧 Credenciales de prueba (Mock):</p>
-        <div class="credentials-list">
-          <div class="credential-item">
-            <strong>Usuario:</strong>
-            <code>user@convive.com</code>
-            <code>password123</code>
-          </div>
-          <div class="credential-item">
-            <strong>Admin:</strong>
-            <code>admin@convive.com</code>
-            <code>admin123</code>
-          </div>
-        </div>
+      <div class="register-link">
+        <p>
+          ¿No tienes cuenta? 
+          <router-link to="/register">¡Regístrate!</router-link>
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { reactive, ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const formData = reactive({
@@ -76,7 +72,21 @@ const formData = reactive({
   password: ''
 })
 
+const successMessage = ref('')
+
+// Mostrar mensaje si viene del registro
+onMounted(() => {
+  if (route.query.registered === 'true') {
+    successMessage.value = '¡Registro exitoso! Ahora puedes iniciar sesión.'
+    // Limpiar el query param
+    setTimeout(() => {
+      router.replace({ name: 'login' })
+    }, 100)
+  }
+})
+
 const handleLogin = async () => {
+  successMessage.value = ''
   try {
     await authStore.login(formData.email, formData.password)
     // Redirigir a pisos después del login exitoso
@@ -159,6 +169,16 @@ const handleLogin = async () => {
   cursor: not-allowed;
 }
 
+.success-message {
+  background-color: #dcfce7;
+  color: #16a34a;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  border: 1px solid #bbf7d0;
+  margin-bottom: 1rem;
+}
+
 .error-message {
   background-color: #fee2e2;
   border: 1px solid #fca5a5;
@@ -196,46 +216,28 @@ const handleLogin = async () => {
   cursor: not-allowed;
 }
 
-.mock-credentials {
-  background-color: #f0f9ff;
-  border: 1px solid #bae6fd;
-  border-radius: 0.5rem;
-  padding: 1rem;
+.register-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
 }
 
-.mock-title {
+.register-link p {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.register-link a {
+  color: #667eea;
   font-weight: 600;
-  color: #0369a1;
-  margin-bottom: 0.75rem;
-  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.2s;
 }
 
-.credentials-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.credential-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.85rem;
-}
-
-.credential-item strong {
-  color: #0c4a6e;
-}
-
-.credential-item code {
-  background-color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-family: 'Courier New', monospace;
-  color: #1e40af;
-  border: 1px solid #bae6fd;
-  display: inline-block;
-  margin-right: 0.5rem;
+.register-link a:hover {
+  color: #764ba2;
+  text-decoration: underline;
 }
 
 @media (max-width: 480px) {
