@@ -4,7 +4,7 @@
     'category': 'Website',
     'summary': 'Módulo web base para la aplicación ConVive',
     'author': 'Convive Team',
-    'depends': ['base', 'web'],
+    'depends': ['base', 'web', 'convive-core'],
     'data': [],
     'installable': True,
     'application': False,

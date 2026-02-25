@@ -21,6 +21,7 @@ class Endpoints(StrEnum):
     AUTH_REFRESH = '/api/convive/auth/refresh'
     AUTH_LOGOUT = '/api/convive/auth/logout'
     USER_ME = '/api/convive/users/me'
+    SUBSCRIPTION_CONSUME_PUB = '/api/convive/subscriptions/consume-publication'
 
     @property
     def path(self):

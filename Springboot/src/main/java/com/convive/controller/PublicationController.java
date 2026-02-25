@@ -1,10 +1,13 @@
 package com.convive.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
+import java.util.Map;
 import com.convive.entity.Publication;
 import com.convive.repository.PublicationRepository;
+import com.convive.service.OdooSubscriptionService;
 
 @RestController
 @RequestMapping("/api/publications") // Ruta para todas las publicaciones
@@ -13,6 +16,7 @@ public class PublicationController {
 
     // Inyección automática del repository
     private final PublicationRepository repository;
+    private final OdooSubscriptionService odooSubscriptionService;
 
 
     // OBTENER TODAS LAS PUBLICACIONES
@@ -31,15 +35,24 @@ public class PublicationController {
                 .orElseThrow(() -> new RuntimeException("Publicación no encontrada"));
     }
 
-    // CREAR PUBLICATION
+    // CREAR PUBLICACIÓN — verifica cupo de suscripción en Odoo antes de guardar
 
     @PostMapping
-    public Publication create(@RequestBody Publication publication) {
+    public ResponseEntity<?> create(
+            @RequestBody Publication publication,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
-        // Que no sea in id manual
+        boolean allowed = odooSubscriptionService.consumePublication(authHeader);
+        if (!allowed) {
+            return ResponseEntity.status(403).body(
+                Map.of("error", "Límite de publicaciones de suscripción alcanzado o sin suscripción activa")
+            );
+        }
+
+        // Que no sea un id manual
         publication.setId(null);
 
-        return repository.save(publication);
+        return ResponseEntity.ok(repository.save(publication));
     }
 
     // ACTUALIZAR PUBLICATION
