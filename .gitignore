@@ -45,8 +45,7 @@ secrets.json
 local_settings.py
 
 # Keys / certs
-*.pem
-*.key
+# *.pem y *.key se incluyen en el repo (generadas por convive-jwt)
 *.crt
 *.pfx
 *.p12
@@ -57,8 +56,6 @@ keys/
 
 # Odoo specific
 .odoo_history
-odoo.conf
-.odoo.conf
 
 # Testing / caches
 .pytest_cache/

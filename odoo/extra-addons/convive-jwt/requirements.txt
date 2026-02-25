@@ -1,1 +1,3 @@
 PyJWT==2.8.0
+# cryptography ya viene instalada en la imagen base odoo:17.0 (>= 3.4.8)
+# No se reinstala para evitar conflictos con pyOpenSSL del sistema
