@@ -11,4 +11,6 @@ public interface ChatMensajeRepository extends JpaRepository<ChatMensaje, ChatMe
 
     //Para saber cual es el ultimo mensaje del chat
     ChatMensaje findTopByChatIdOrderByMessageNumberDesc(Long chatId);
+    List<ChatMensaje> findByEmail(String email);
+    List<ChatMensaje> findByChatIdAndEmail(Long chatId, String email);
 }
