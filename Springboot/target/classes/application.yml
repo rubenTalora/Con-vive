@@ -1,13 +1,11 @@
 spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: classpath:keys/public.pem
   datasource:
-    url: jdbc:mysql://localhost:3306/convive_db
+    url: jdbc:mysql://mysql:3306/convive_db
     username: convive
     password: convive123
+    hikari:
+      connection-timeout: 60000
+      initialization-fail-timeout: -1
   jpa:
     hibernate:
       ddl-auto: update
